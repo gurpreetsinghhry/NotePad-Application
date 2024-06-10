@@ -15,7 +15,7 @@ public class Project {
     private LocalDateTime createdTime;
     private LocalDateTime updatedTime;
     private String author = "for_now_guest_user";
-    private List<CanvasObject> canvasObj;
+    private List<String> canvasObj;
 
     // Getters and Setters
     public String getId() {
@@ -58,11 +58,11 @@ public class Project {
         this.author = author;
     }
 
-    public List<CanvasObject> getCanvasObj() {
+    public List<String> getCanvasObj() {
         return canvasObj;
     }
 
-    public void setCanvasObj(List<CanvasObject> canvasObj) {
+    public void setCanvasObj(List<String> canvasObj) {
         this.canvasObj = canvasObj;
     }
 }
