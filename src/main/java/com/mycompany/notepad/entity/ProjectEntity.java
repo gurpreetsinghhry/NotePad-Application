@@ -21,6 +21,4 @@ public class ProjectEntity {
     private LocalDateTime updatedTime;
     private String author;
     private List<CanvasObjectEntity> canvasObj = new ArrayList<>();
-
-    // Getters and Setters
 }

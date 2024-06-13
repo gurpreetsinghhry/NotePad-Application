@@ -10,9 +10,5 @@ public class CanvasObjectModel {
     @Id
     @NotBlank
     private String id;
-    private String canvasobjectType;
-    private double xCoordinate;
-    private double yCoordinate;
-    private double height;
-    private double width;
+    private Object value;
 }

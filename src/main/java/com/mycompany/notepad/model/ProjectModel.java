@@ -12,7 +12,7 @@ import lombok.Data;
 
 @Data
 public class ProjectModel {
-        @Id
+    @Id
     private String id;
     private String projectName;
     private LocalDateTime createdTime;

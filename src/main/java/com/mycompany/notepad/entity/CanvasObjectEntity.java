@@ -4,15 +4,15 @@ import org.springframework.data.annotation.Id;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
+@Document(collection = "canvasObj")
 public class CanvasObjectEntity {
+
     @Id
-    @NotBlank
     private String id;
-    private String canvasobjectType;
-    private double xCoordinate;
-    private double yCoordinate;
-    private double height;
-    private double width;
+    private Object value;
+
 }

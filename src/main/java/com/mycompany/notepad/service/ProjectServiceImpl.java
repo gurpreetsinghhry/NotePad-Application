@@ -33,12 +33,8 @@ public class ProjectServiceImpl implements ProjectService {
         if (optionalProject.isPresent()) {
             ProjectEntity projectEntity = optionalProject.get();
             CanvasObjectEntity canvasObjectEntity = new CanvasObjectEntity();
-            canvasObjectEntity.setId(canvasObjectModel.getId());
-            canvasObjectEntity.setCanvasobjectType(canvasObjectModel.getCanvasobjectType());
-            canvasObjectEntity.setXCoordinate(canvasObjectModel.getXCoordinate());
-            canvasObjectEntity.setYCoordinate(canvasObjectModel.getYCoordinate());
-            canvasObjectEntity.setHeight(canvasObjectModel.getHeight());
-            canvasObjectEntity.setWidth(canvasObjectModel.getWidth());
+            canvasObjectEntity.setValue(canvasObjectModel.getValue());
+            canvasObjectEntity.setId(projectId + System.currentTimeMillis());
 
             projectEntity.getCanvasObj().add(canvasObjectEntity);
             projectEntity.setUpdatedTime(LocalDateTime.now());
@@ -92,11 +88,8 @@ public class ProjectServiceImpl implements ProjectService {
                 .orElseThrow(() -> new RuntimeException("Project not found"));
         for (CanvasObjectEntity canvasObject : projectEntity.getCanvasObj()) {
             if (canvasObjectId.equals(canvasObject.getId())) {
-                canvasObject.setCanvasobjectType(canvasObjectModel.getCanvasobjectType());
-                canvasObject.setXCoordinate(canvasObjectModel.getXCoordinate());
-                canvasObject.setYCoordinate(canvasObjectModel.getYCoordinate());
-                canvasObject.setHeight(canvasObjectModel.getHeight());
-                canvasObject.setWidth(canvasObjectModel.getWidth());
+                canvasObject.setId(projectId + System.currentTimeMillis());
+                canvasObject.setValue(canvasObjectModel.getValue());
                 projectEntity.setUpdatedTime(LocalDateTime.now());
                 return projectRepository.save(projectEntity);
             }
