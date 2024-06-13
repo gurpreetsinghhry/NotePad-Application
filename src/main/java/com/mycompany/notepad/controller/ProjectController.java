@@ -18,10 +18,6 @@ public class ProjectController {
     @Autowired
     private ProjectService projectService;
 
-    @PostMapping
-    public String test(){
-        return "Done";
-    }
 
     @PostMapping("/myprojects")
     public ProjectEntity createProject(@RequestBody ProjectModel projectModel) {
