@@ -12,7 +12,6 @@ import com.mycompany.notepad.model.CanvasObjectModel;
 import com.mycompany.notepad.model.ProjectModel;
 import com.mycompany.notepad.service.ProjectService;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/projects")
 public class ProjectController {
