@@ -9,14 +9,11 @@ COPY mvnw .
 COPY mvnw.cmd .
 COPY pom.xml .
 
-# Set executable permission on Maven Wrapper
-RUN chmod +x mvnw
-
 # Copy the rest of the application source code
 COPY src ./src
 
 # Build the application
-RUN ./mvnw clean package -DskipTests
+RUN mvn clean package -DskipTests
 
 # Use an official OpenJDK runtime as a parent image for the final image
 FROM openjdk:17-jdk-alpine

@@ -4,7 +4,7 @@ services:
     plan: free
     repo: https://github.com/gurpreetsinghhry/NotePad-Application
     branch: main
-    buildCommand: "./mvnw clean package"
+    buildCommand: ""
     startCommand: "java -jar target/my-spring-boot-app.jar"
     dockerfilePath: ./Dockerfile
     runtime: docker
