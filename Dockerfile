@@ -9,6 +9,9 @@ COPY mvnw .
 COPY mvnw.cmd .
 COPY pom.xml .
 
+# Set executable permission on Maven Wrapper
+RUN chmod +x mvnw
+
 # Copy the rest of the application source code
 COPY src ./src
 
