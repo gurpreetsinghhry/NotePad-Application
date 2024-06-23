@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class CanvasObjectModel {
     @Id
-    @NotBlank
+    @Schema(hidden=true)
     private String id;
     private Object value;
 }
