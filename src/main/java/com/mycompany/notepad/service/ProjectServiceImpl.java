@@ -1,10 +1,15 @@
 package com.mycompany.notepad.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.mycompany.notepad.exception.CanvasObjectNotFoundException;
+import com.mycompany.notepad.exception.ProjectNotFoundException;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.mycompany.notepad.entity.CanvasObjectEntity;
@@ -28,7 +33,7 @@ public class ProjectServiceImpl implements ProjectService {
         return projectRepository.save(projectEntity);
     }
 
-    public ProjectEntity addCanvasObject(String projectId, CanvasObjectModel canvasObjectModel) {
+    public ResponseEntity<?> addCanvasObject(String projectId, CanvasObjectModel canvasObjectModel) {
         Optional<ProjectEntity> optionalProject = projectRepository.findById(projectId);
         if (optionalProject.isPresent()) {
             ProjectEntity projectEntity = optionalProject.get();
@@ -39,9 +44,10 @@ public class ProjectServiceImpl implements ProjectService {
             projectEntity.getCanvasObj().add(canvasObjectEntity);
             projectEntity.setUpdatedTime(LocalDateTime.now());
 
-            return projectRepository.save(projectEntity);
+            projectRepository.save(projectEntity);
+            return ResponseEntity.ok().body(canvasObjectModel);
         } else {
-            throw new RuntimeException("Project not found");
+            throw new ProjectNotFoundException("No Project present with this project id.");
         }
     }
 
@@ -49,64 +55,112 @@ public class ProjectServiceImpl implements ProjectService {
         return projectRepository.findAll();
     }
 
-    public ProjectEntity getProjectById(String projectId) {
-        return projectRepository.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
+    public ResponseEntity<?> getProjectById(String projectId) {
+        Optional<ProjectEntity> optionalProject = projectRepository.findById(projectId);
+        if (optionalProject.isEmpty()) {
+            throw new ProjectNotFoundException("No Project present with this project id.");
+        }
+        ProjectModel projectModel = new ProjectModel();
+        ProjectEntity projectEntity = projectRepository.findById(projectId).get();
+        BeanUtils.copyProperties(projectEntity, projectModel);
+        return ResponseEntity.ok().body(projectModel);
     }
 
-    public List<CanvasObjectEntity> getCanvasObjectsByProjectId(String projectId) {
-        ProjectEntity projectEntity = projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
-        return projectEntity.getCanvasObj();
+    public ResponseEntity<?> getCanvasObjectsByProjectId(String projectId) {
+        Optional<ProjectEntity> optionalProject = projectRepository.findById(projectId);
+        if (optionalProject.isEmpty()) {
+            throw new ProjectNotFoundException("No Project present with this project id.");
+        }
+        List<CanvasObjectEntity> canvasObjectEntitiesList = projectRepository.findById(projectId).get().getCanvasObj();
+        List<CanvasObjectModel> canvasObjectModelList = new ArrayList<>();
+        BeanUtils.copyProperties(canvasObjectEntitiesList, canvasObjectModelList);
+        return ResponseEntity.ok().body(canvasObjectModelList);
     }
 
-    public CanvasObjectEntity getCanvasObjectById(String projectId, String canvasObjectId) {
-        ProjectEntity projectEntity = projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
-        return projectEntity.getCanvasObj().stream()
-                .filter(canvasObject -> canvasObjectId.equals(canvasObject.getId()))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Canvas object not found"));
-    }
+    public ResponseEntity<?> getCanvasObjectById(String projectId, String canvasObjectId) {
+        Optional<ProjectEntity> projectOptional = projectRepository.findById(projectId);
+        if (projectOptional.isEmpty()) {
+            throw new ProjectNotFoundException("No Project present with this project id");
+        } else {
+            Optional<CanvasObjectEntity> canvasObjectOptional = projectOptional.get().getCanvasObj().stream()
+                    .filter(canvasObject -> canvasObjectId.equals(canvasObject.getId()))
+                    .findFirst();
 
-    public ProjectEntity updateProject(String projectId, ProjectModel projectModel) {
-        ProjectEntity projectEntity = projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
-        projectEntity.setProjectName(projectModel.getProjectName());
-        projectEntity.setUpdatedTime(LocalDateTime.now());
-        return projectRepository.save(projectEntity);
-    }
-
-    public void deleteProject(String projectId) {
-        ProjectEntity projectEntity = projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
-        projectRepository.delete(projectEntity);
-    }
-
-    public ProjectEntity updateCanvasObject(String projectId, String canvasObjectId,
-            CanvasObjectModel canvasObjectModel) {
-        ProjectEntity projectEntity = projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
-        for (CanvasObjectEntity canvasObject : projectEntity.getCanvasObj()) {
-            if (canvasObjectId.equals(canvasObject.getId())) {
-                canvasObject.setId(projectId + System.currentTimeMillis());
-                canvasObject.setValue(canvasObjectModel.getValue());
-                projectEntity.setUpdatedTime(LocalDateTime.now());
-                return projectRepository.save(projectEntity);
+            if (canvasObjectOptional.isEmpty()) {
+                throw new CanvasObjectNotFoundException("No Canvas with this canvas id present in this project");
+            } else {
+                CanvasObjectModel canvasObjectModel = new CanvasObjectModel();
+                BeanUtils.copyProperties(canvasObjectOptional.get(), canvasObjectModel);
+                return ResponseEntity.ok().body(canvasObjectModel);
             }
         }
-        throw new RuntimeException("Canvas object not found");
+
     }
 
-    public void deleteCanvasObject(String projectId, String canvasObjectId) {
-        ProjectEntity projectEntity = projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
-        CanvasObjectEntity canvasObjectToDelete = projectEntity.getCanvasObj().stream()
-                .filter(canvasObject -> canvasObjectId.equals(canvasObject.getId()))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Canvas object not found"));
-        projectEntity.getCanvasObj().remove(canvasObjectToDelete);
+    public ResponseEntity<?> updateProject(String projectId, ProjectModel projectModel) {
+        Optional<ProjectEntity> optionalProject = projectRepository.findById(projectId);
+        if (optionalProject.isEmpty()) {
+            throw new ProjectNotFoundException("No Project present with this project id");
+        }
+        ProjectEntity projectEntity = optionalProject.get();
+        projectEntity.setProjectName(projectModel.getProjectName());
         projectEntity.setUpdatedTime(LocalDateTime.now());
-        projectRepository.save(projectEntity);
+        return ResponseEntity.ok().body(projectEntity);
+    }
+
+    public ResponseEntity<?> deleteProject(String projectId) {
+        Optional<ProjectEntity> optionalProject = projectRepository.findById(projectId);
+        if (optionalProject.isEmpty()) {
+            throw new ProjectNotFoundException("No Project present with this project id");
+        } else {
+            projectRepository.deleteById(projectId);
+            return ResponseEntity.ok().body("Project deleted successfully");
+
+        }
+    }
+
+    public ResponseEntity<?> updateCanvasObject(String projectId, String canvasObjectId,
+            CanvasObjectModel canvasObjectModel) {
+        Optional<ProjectEntity> optionalProject = projectRepository.findById(projectId);
+        if (optionalProject.isEmpty()) {
+            throw new ProjectNotFoundException("No Project present with this project id");
+        } else {
+            Optional<CanvasObjectEntity> canvasObjectOptional = projectRepository.findById(projectId).get()
+                    .getCanvasObj().stream()
+                    .filter(canvasObject -> canvasObjectId.equals(canvasObject.getId()))
+                    .findFirst();
+
+            if (canvasObjectOptional.isEmpty()) {
+                throw new CanvasObjectNotFoundException("No Canvas with this canvas id present in this project");
+            } else {
+                CanvasObjectEntity canvasObjectEntity = canvasObjectOptional.get();
+                canvasObjectEntity.setValue(canvasObjectModel.getValue());
+                canvasObjectEntity.setId(projectId + System.currentTimeMillis());
+                projectRepository.save(optionalProject.get());
+                return ResponseEntity.ok().body(canvasObjectEntity);
+            }
+        }
+    }
+
+    public ResponseEntity<?> deleteCanvasObject(String projectId, String canvasObjectId) {
+        Optional<ProjectEntity> optionalProject = projectRepository.findById(projectId);
+        if (optionalProject.isEmpty()) {
+            throw new ProjectNotFoundException("No Project present with this project id");
+        } else {
+            Optional<CanvasObjectEntity> canvasObjectOptional = projectRepository.findById(projectId).get()
+                    .getCanvasObj().stream()
+                    .filter(canvasObject -> canvasObjectId.equals(canvasObject.getId())).findFirst();
+            if (canvasObjectOptional.isEmpty()) {
+                throw new CanvasObjectNotFoundException("No Canvas with this canvas id present in this project");
+            } else {
+                ProjectEntity projectEntity = optionalProject.get();
+                CanvasObjectEntity canvasObjectEntity = canvasObjectOptional.get();
+                projectEntity.getCanvasObj().remove(canvasObjectEntity);
+                projectEntity.setUpdatedTime(LocalDateTime.now());
+                projectRepository.save(projectEntity);
+                return ResponseEntity.ok().body("Canvas deleted successfully");
+            }
+        }
     }
 
 }

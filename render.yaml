@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: my-spring-boot-app
+    plan: free
+    repo: https://github.com/gurpreetsinghhry/NotePad-Application
+    branch: main
+    buildCommand: ""
+    startCommand: "java -jar target/my-spring-boot-app.jar"
+    dockerfilePath: ./Dockerfile
+    runtime: docker
+    envVars:
+      - key: MONGODB_URI
+        value: "mongodb+srv://gurpreetsaharan101:u8cNRlshd9HhhC4d@cluster0.yp58srv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+      - key: MONGODB_DATABASE
+        value: "notepad_app_Test1"
