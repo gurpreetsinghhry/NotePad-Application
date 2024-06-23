@@ -1,9 +1,9 @@
 package com.mycompany.notepad.service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.mycompany.notepad.exception.CanvasObjectNotFoundException;
 import com.mycompany.notepad.exception.ProjectNotFoundException;
@@ -40,12 +40,12 @@ public class ProjectServiceImpl implements ProjectService {
             CanvasObjectEntity canvasObjectEntity = new CanvasObjectEntity();
             canvasObjectEntity.setValue(canvasObjectModel.getValue());
             canvasObjectEntity.setId(projectId + System.currentTimeMillis());
-
             projectEntity.getCanvasObj().add(canvasObjectEntity);
             projectEntity.setUpdatedTime(LocalDateTime.now());
-
             projectRepository.save(projectEntity);
-            return ResponseEntity.ok().body(canvasObjectModel);
+            CanvasObjectModel localCanvasObjectModel = new CanvasObjectModel();
+            BeanUtils.copyProperties(canvasObjectEntity,localCanvasObjectModel);
+            return ResponseEntity.ok().body(localCanvasObjectModel);
         } else {
             throw new ProjectNotFoundException("No Project present with this project id.");
         }
@@ -71,10 +71,19 @@ public class ProjectServiceImpl implements ProjectService {
         if (optionalProject.isEmpty()) {
             throw new ProjectNotFoundException("No Project present with this project id.");
         }
-        List<CanvasObjectEntity> canvasObjectEntitiesList = projectRepository.findById(projectId).get().getCanvasObj();
-        List<CanvasObjectModel> canvasObjectModelList = new ArrayList<>();
-        BeanUtils.copyProperties(canvasObjectEntitiesList, canvasObjectModelList);
+        List<CanvasObjectEntity> canvasObjectEntities =  optionalProject.get().getCanvasObj();
+        // Convert each CanvasObjectEntity to CanvasObjectModel
+        List<CanvasObjectModel> canvasObjectModelList = canvasObjectEntities.stream()
+                .map(this::convertToModel)
+                .collect(Collectors.toList());
+
         return ResponseEntity.ok().body(canvasObjectModelList);
+    }
+
+    private CanvasObjectModel convertToModel(CanvasObjectEntity entity) {
+        CanvasObjectModel model = new CanvasObjectModel();
+        BeanUtils.copyProperties(entity,model);
+        return model;
     }
 
     public ResponseEntity<?> getCanvasObjectById(String projectId, String canvasObjectId) {
