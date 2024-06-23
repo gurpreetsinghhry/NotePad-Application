@@ -9,6 +9,7 @@ import org.springframework.data.annotation.Id;
 import com.mycompany.notepad.Util.annotations.AlphaSpace;
 import com.mycompany.notepad.entity.CanvasObjectEntity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -16,6 +17,7 @@ import lombok.Data;
 public class ProjectModel {
     @Id
     private String id;
+    @Schema(hidden=true)
     private String projectName;
     private LocalDateTime createdTime;
     private LocalDateTime updatedTime;
