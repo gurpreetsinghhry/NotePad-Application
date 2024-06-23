@@ -1,6 +1,7 @@
 package com.mycompany.notepad.exception;
 
-public class CanvasNotFoundException extends RuntimeException {
-    public CanvasNotFoundException(String message) {
+public class ProjectNotFoundException extends RuntimeException {
+    public ProjectNotFoundException(String message) {
+        super(message);
     }
 }

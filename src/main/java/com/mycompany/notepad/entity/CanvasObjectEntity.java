@@ -2,9 +2,7 @@ package com.mycompany.notepad.entity;
 
 import org.springframework.data.annotation.Id;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
