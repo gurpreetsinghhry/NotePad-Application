@@ -16,13 +16,25 @@ import lombok.Data;
 @Data
 public class ProjectModel {
     @Id
-    private String id;
     @Schema(hidden=true)
+    private String id;
+<<<<<<< HEAD
+    @Schema(eample="Name of the project.")
+=======
+    @Schema(hidden=true)
+>>>>>>> 7ce6bf0ec4c11c459fc7e9e52428f8cb5ebf1779
     private String projectName;
+    @Schema(hidden=true)
     private LocalDateTime createdTime;
+    @Schema(hidden=true)
     private LocalDateTime updatedTime;
+<<<<<<< HEAD
+    @Schema(example="Author of the project.")
+=======
     @NotBlank
     @AlphaSpace
+>>>>>>> ff27d0ec514d69281a95a81f5dbaa4eef4d1bb54
     private String author;
+    @Schema(hidden=true)
     private List<CanvasObjectEntity> canvasObj = new ArrayList<>();
 }
