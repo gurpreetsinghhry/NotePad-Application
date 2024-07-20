@@ -60,7 +60,7 @@ public class ProjectServiceImpl implements ProjectService {
             throw new ProjectNotFoundException("No Project present with this project id.");
         }
         ProjectModel projectModel = new ProjectModel();
-        ProjectEntity projectEntity = projectRepository.findById(projectId).get();
+        ProjectEntity projectEntity = optionalProject.get();
         BeanUtils.copyProperties(projectEntity, projectModel);
         return ResponseEntity.ok().body(projectModel);
     }
@@ -133,8 +133,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (optionalProject.isEmpty()) {
             throw new ProjectNotFoundException("No Project present with this project id");
         } else {
-            Optional<CanvasObjectEntity> canvasObjectOptional = projectRepository.findById(projectId).get()
-                    .getCanvasObj().stream()
+            Optional<CanvasObjectEntity> canvasObjectOptional = projectRepository.findById(projectId).get().getCanvasObj().stream()
                     .filter(canvasObject -> canvasObjectId.equals(canvasObject.getId()))
                     .findFirst();
 
