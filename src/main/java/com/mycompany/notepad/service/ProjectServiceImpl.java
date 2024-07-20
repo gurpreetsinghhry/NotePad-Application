@@ -1,8 +1,7 @@
 package com.mycompany.notepad.service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.mycompany.notepad.exception.CanvasObjectNotFoundException;
@@ -44,7 +43,7 @@ public class ProjectServiceImpl implements ProjectService {
             projectEntity.setUpdatedTime(LocalDateTime.now());
             projectRepository.save(projectEntity);
             CanvasObjectModel localCanvasObjectModel = new CanvasObjectModel();
-            BeanUtils.copyProperties(canvasObjectEntity,localCanvasObjectModel);
+            BeanUtils.copyProperties(canvasObjectEntity, localCanvasObjectModel);
             return ResponseEntity.ok().body(localCanvasObjectModel);
         } else {
             throw new ProjectNotFoundException("No Project present with this project id.");
@@ -61,7 +60,7 @@ public class ProjectServiceImpl implements ProjectService {
             throw new ProjectNotFoundException("No Project present with this project id.");
         }
         ProjectModel projectModel = new ProjectModel();
-        ProjectEntity projectEntity = projectRepository.findById(projectId).get();
+        ProjectEntity projectEntity = optionalProject.get();
         BeanUtils.copyProperties(projectEntity, projectModel);
         return ResponseEntity.ok().body(projectModel);
     }
@@ -71,7 +70,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (optionalProject.isEmpty()) {
             throw new ProjectNotFoundException("No Project present with this project id.");
         }
-        List<CanvasObjectEntity> canvasObjectEntities =  optionalProject.get().getCanvasObj();
+        List<CanvasObjectEntity> canvasObjectEntities = optionalProject.get().getCanvasObj();
         // Convert each CanvasObjectEntity to CanvasObjectModel
         List<CanvasObjectModel> canvasObjectModelList = canvasObjectEntities.stream()
                 .map(this::convertToModel)
@@ -82,7 +81,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     private CanvasObjectModel convertToModel(CanvasObjectEntity entity) {
         CanvasObjectModel model = new CanvasObjectModel();
-        BeanUtils.copyProperties(entity,model);
+        BeanUtils.copyProperties(entity, model);
         return model;
     }
 
@@ -169,6 +168,28 @@ public class ProjectServiceImpl implements ProjectService {
                 projectRepository.save(projectEntity);
                 return ResponseEntity.ok().body("Canvas deleted successfully");
             }
+        }
+    }
+
+    @Override
+    public ResponseEntity<?> addMultiObjects(String projectId, List<CanvasObjectModel> listOfCanvas) {
+        Optional<ProjectEntity> optionalProject = projectRepository.findById(projectId);
+        if (optionalProject.isPresent()) {
+            ProjectEntity projectEntity = optionalProject.get();
+            for (CanvasObjectModel model : listOfCanvas) {
+                UUID uuid = UUID.randomUUID();
+                String uuidAsString = uuid.toString();
+                CanvasObjectEntity canvasObjectEntity = new CanvasObjectEntity();
+                canvasObjectEntity.setValue(model.getValue());
+                canvasObjectEntity.setId(uuidAsString);
+                projectEntity.getCanvasObj().add(canvasObjectEntity);
+            }
+
+            projectEntity.setUpdatedTime(LocalDateTime.now());
+            projectRepository.save(projectEntity);
+            return ResponseEntity.ok().body("List of Objects where added successfully.");
+        } else {
+            throw new ProjectNotFoundException("No Project present with this project id.");
         }
     }
 
