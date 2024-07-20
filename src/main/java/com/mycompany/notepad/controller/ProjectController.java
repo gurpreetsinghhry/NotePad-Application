@@ -80,4 +80,10 @@ public class ProjectController {
     public ResponseEntity<?> deleteCanvasObject(@PathVariable String projectId, @PathVariable String canvasObjectId) {
         return projectService.deleteCanvasObject(projectId, canvasObjectId);
     }
+
+    @Operation(summary = "To add List of canvas objects at once.")
+    @PostMapping("/{projectId}/listOfCanvas")
+    public ResponseEntity<?> addListOfCanvasObjects(@PathVariable String projectId, @RequestBody List<CanvasObjectModel> listOfCanvasModel) {
+        return projectService.addMultiObjects(projectId, listOfCanvasModel);
+    }
 }

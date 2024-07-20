@@ -28,4 +28,7 @@ public interface ProjectService {
             CanvasObjectModel canvasObjectModel);
 
     public ResponseEntity<?> deleteCanvasObject(String projectId, String canvasObjectId);
+
+    public ResponseEntity<?> addMultiObjects(String projectId, List<CanvasObjectModel> listOfCanvas);
+
 }
